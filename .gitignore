@@ -1,3 +1,5 @@
 /IdentityByExamples/.vs
 /IdentityByExamples/IdentityByExamples/obj
 /IdentityByExamples/IdentityByExamples/bin
+bin/
+obj/
