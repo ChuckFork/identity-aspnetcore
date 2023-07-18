@@ -99,6 +99,9 @@ namespace IdentityByExamples.Controllers
                 return View(userModel);
             }
 
+            var providers=await _signInManager.GetExternalLoginInfoAsync();
+            Console.WriteLine($"{providers?.ProviderDisplayName}");
+
             var result = await _signInManager.PasswordSignInAsync(userModel.Email, userModel.Password, userModel.RememberMe, lockoutOnFailure: true);
             if (result.Succeeded)
             {
@@ -267,6 +270,10 @@ namespace IdentityByExamples.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
+            if (provider.Equals("OpenIdConnect", StringComparison.InvariantCultureIgnoreCase))
+            {
+                returnUrl = "/MicrosoftIdentity/Account/SignIn";
+            }
             var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);

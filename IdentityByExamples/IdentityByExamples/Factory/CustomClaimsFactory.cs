@@ -19,8 +19,8 @@ namespace IdentityByExamples.Factory
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(User user)
         {
             var identity = await base.GenerateClaimsAsync(user);
-            identity.AddClaim(new Claim("firstname", user.FirstName));
-            identity.AddClaim(new Claim("lastname", user.LastName));
+            //identity.AddClaim(new Claim("firstname", user.FirstName));
+            //identity.AddClaim(new Claim("lastname", user.LastName));
 
             return identity;
         }
