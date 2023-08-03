@@ -69,7 +69,7 @@ namespace IdentityByExamples
             services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
 
             //services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            services.AddAuthentication()
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddGoogle("Google", opt =>
                 {
                     var googleAuth = Configuration.GetSection("Authentication:Google");
