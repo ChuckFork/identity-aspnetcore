@@ -2,11 +2,14 @@
 using EmailService;
 using IdentityByExamples.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -18,6 +21,7 @@ namespace IdentityByExamples.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IEmailSender _emailSender;
+        ExternalLoginInfo _externalLoginInfo;
 
         public AccountController(IMapper mapper, UserManager<User> userManager, SignInManager<User> signInManager, IEmailSender emailSender)
         {
@@ -192,9 +196,30 @@ namespace IdentityByExamples.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            bool isMicrosoftLoggedIn = false;
+            // Inside your controller or service
+            if (User.Identity.IsAuthenticated)
+            {
+                isMicrosoftLoggedIn = User.Claims.Any(c =>
+       c.Type.Equals(ClaimTypes.AuthenticationMethod) && c.Value.Equals(OpenIdConnectDefaults.AuthenticationScheme));
+            }
+
             await _signInManager.SignOutAsync();
 
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            Response.Cookies.Append(".AspNetCore.Session", "", new CookieOptions { Expires = DateTimeOffset.UtcNow });
+
+            if (isMicrosoftLoggedIn)
+            {
+                // User is logged in via an external provider
+                // You can perform actions specific to external provider logins
+                Console.WriteLine(isMicrosoftLoggedIn);
+               return Redirect("/MicrosoftIdentity/Account/SignOut");
+            }
+            else
+            {
+                // User is logged in using a different method (e.g., username/password)
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [HttpGet]
@@ -286,6 +311,10 @@ namespace IdentityByExamples.Controllers
             if (info == null)
             {
                 return RedirectToAction(nameof(Login));
+            }
+            else
+            {
+                _externalLoginInfo = info;
             }
 
             var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
