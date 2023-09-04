@@ -3,10 +3,12 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using AutoMapper;
 using EmailService;
+using IdentityByExamples.Controllers;
 using IdentityByExamples.CustomTokenProviders;
 using IdentityByExamples.CustomValidators;
 using IdentityByExamples.Factory;
 using IdentityByExamples.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -69,7 +71,7 @@ namespace IdentityByExamples
             services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
 
             //services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddGoogle("Google", opt =>
                 {
                     var googleAuth = Configuration.GetSection("Authentication:Google");
@@ -90,6 +92,8 @@ namespace IdentityByExamples
                     options.SignInScheme = IdentityConstants.ExternalScheme;
                     options.Events.OnRedirectToIdentityProvider = OnRedirectToIdentityProvider;
                     options.Events.OnRedirectToIdentityProviderForSignOut = OnRedirectToIdentityProviderForSignOutFuc;
+                    //options.SignedOutRedirectUri = "/";
+                    //options.SignedOutCallbackPath
                 },cookieScheme:null);
             //services.AddControllersWithViews(options =>
             //{
@@ -120,7 +124,7 @@ namespace IdentityByExamples
         }
         private async Task OnRedirectToIdentityProviderForSignOutFuc(RedirectContext arg)
         {
-            arg.HttpContext.Session.Clear();
+            //arg.HttpContext.Session.Clear();
             await Task.CompletedTask.ConfigureAwait(false);
         }
 

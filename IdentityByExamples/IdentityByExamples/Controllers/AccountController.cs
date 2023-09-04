@@ -320,7 +320,8 @@ namespace IdentityByExamples.Controllers
             var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
             if(signInResult.Succeeded)
             {
-                return RedirectToLocal(returnUrl);
+                //return RedirectToLocal(returnUrl);
+                return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             if(signInResult.IsLockedOut)
             {
